@@ -9,6 +9,11 @@ public class Employee {
     private String email;
     private String title;
 
+
+       // Default constructor for Jackson
+       public Employee() {
+        // no-args constructor
+    }
     // Constructor
     public Employee(String employee_id, String first_name, String last_name, String email, String title) {
         this.employee_id = employee_id;

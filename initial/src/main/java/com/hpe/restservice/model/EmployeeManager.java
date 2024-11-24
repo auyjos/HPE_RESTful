@@ -1,6 +1,10 @@
 package com.hpe.restservice.model;
 
+import java.util.List;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class EmployeeManager {
 
     private Employees employees;
@@ -15,5 +19,15 @@ public class EmployeeManager {
 
     public Employees getEmployees() {
         return employees;
+    }
+
+    // Method to add a single employee
+    public void addEmployee(Employee employee) {
+        employees.addEmployee(employee);
+    }
+
+    // Method to add multiple employees
+    public void addEmployees(List<Employee> newEmployees) {
+        employees.addEmployees(newEmployees);
     }
 }
