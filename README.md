@@ -158,8 +158,4 @@ While this application currently only supports a **GET** request to fetch employ
 3. **DELETE /employees/{id}**: Remove an employee from the list.
 4. **Database Integration**: Instead of hard-coding the employee list, you can connect the application to a database (e.g., MySQL, PostgreSQL) using Spring Data JPA.
 
-## Conclusion
-
-This project provides a simple example of how to build a RESTful web service with Spring Boot. It demonstrates best practices for structuring a project and creating a scalable application. You can build upon this foundation to create more complex features and integrate with databases or other services as needed.
-
 ---
