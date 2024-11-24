@@ -1,0 +1,38 @@
+[
+    {
+      "employee_id": "EMP006",
+      "first_name": "Emily",
+      "last_name": "Johnson",
+      "email": "emily.johnson@example.com",
+      "title": "HR Specialist"
+    },
+    {
+      "employee_id": "EMP007",
+      "first_name": "Michael",
+      "last_name": "Brown",
+      "email": "michael.brown@example.com",
+      "title": "Software Engineer"
+    },
+    {
+      "employee_id": "EMP008",
+      "first_name": "Sarah",
+      "last_name": "Davis",
+      "email": "sarah.davis@example.com",
+      "title": "Product Manager"
+    },
+    {
+      "employee_id": "EMP009",
+      "first_name": "James",
+      "last_name": "Miller",
+      "email": "james.miller@example.com",
+      "title": "Project Manager"
+    },
+    {
+      "employee_id": "EMP010",
+      "first_name": "Sophia",
+      "last_name": "Garcia",
+      "email": "sophia.garcia@example.com",
+      "title": "Marketing Specialist"
+    }
+  ]
+  

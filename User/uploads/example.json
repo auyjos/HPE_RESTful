@@ -1,17 +1,17 @@
 [
     {
-      "employeeId": "EMP004",
-      "firstName": "Jonathan",
-      "lastName": "Doe",
+      "employee_id": "EMP004",
+      "first_name": "Jonathan",
+      "last_name": "Doe",
       "email": "john.doe@example.com",
-      "jobTitle": "Software Engineer"
+      "title": "Software Engineer"
     },
     {
-      "employeeId": "EMP005",
-      "firstName": "Janisse",
-      "lastName": "Smith",
+      "employee_id": "EMP005",
+      "first_name": "Janisse",
+      "last_name": "Smith",
       "email": "jane.smith@example.com",
-      "jobTitle": "Project Manager"
+      "title": "Project Manager"
     }
   ]
   

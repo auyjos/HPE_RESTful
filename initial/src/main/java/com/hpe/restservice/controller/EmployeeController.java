@@ -42,24 +42,29 @@ public class EmployeeController {
         return employee; // Return the added employee (optional)
     }
 
+   // POST endpoint to upload a file and add employees
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
-            InputStream inputStream = file.getInputStream();
-            ObjectMapper objectMapper = new ObjectMapper();
-    
+            // Save the uploaded file using FileSystemStorageService
+            String fileName = fileSystemStorageService.saveFile(file);
+            
+            // Load the file from storage and parse it
+            Resource resource = fileSystemStorageService.loadFile(fileName);
+            InputStream inputStream = resource.getInputStream();
+            
             // Deserialize the JSON into a list of Employee objects
+            ObjectMapper objectMapper = new ObjectMapper();
             List<Employee> employees = objectMapper.readValue(inputStream, new TypeReference<List<Employee>>() {});
-    
-            // Add employees to employee manager
+
+            // Add the parsed employees to the employee manager
             Employees employeesWrapper = new Employees();
             employeesWrapper.addEmployees(employees);
             employeeManager.addEmployees(employeesWrapper.getEmployeeList());
-    
-            return ResponseEntity.ok("File uploaded and employees added successfully!");
+
+            return ResponseEntity.ok("File uploaded, saved, and employees added successfully!");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file.");
         }
     }
-    
 }
