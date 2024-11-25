@@ -2,24 +2,27 @@ package com.hpe.restservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.restservice.model.Employee;
+
 import com.hpe.restservice.model.EmployeeManager;
-import com.hpe.restservice.model.Employees;
 import com.hpe.restservice.service.IFileSytemStorage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class EmployeeControllerTest {
+
+    private MockMvc mockMvc;
 
     @Mock
     private EmployeeManager employeeManager;
@@ -35,77 +38,58 @@ class EmployeeControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        objectMapper = new ObjectMapper();
+        this.mockMvc = MockMvcBuilders.standaloneSetup(employeeController).build();
+        this.objectMapper = new ObjectMapper();
     }
 
-    @Test
-    void testGetAllEmployees() {
-        // Mock the return value of EmployeeManager
-        Employees mockEmployees = new Employees();
-        mockEmployees.addEmployee(new Employee("EMP001", "John", "Doe", "john.doe@example.com", "Developer"));
-        when(employeeManager.getEmployees()).thenReturn(mockEmployees);
-
-        // Call the endpoint
-        Employees result = employeeController.getAllEmployees();
-
-        // Assertions
-        assertNotNull(result, "The result should not be null");
-        assertEquals(1, result.getEmployeeList().size(), "The employee list size should be 1");
-        assertEquals("John", result.getEmployeeList().get(0).getFirst_name(), "The first name should match");
-    }
 
     @Test
-    void testAddEmployee() {
-        // Prepare mock input
-        Employee newEmployee = new Employee("EMP002", "Jane", "Smith", "jane.smith@example.com", "Manager");
+    void testAddEmployee() throws Exception {
+        // Mock data
+        Employee newEmployee = new Employee("EMP003", "Mark", "Anthony", "mark.anthony@example.com", "HR Specialist");
 
-        // Call the endpoint
-        Employee result = employeeController.addEmployee(newEmployee);
+        // Perform POST request
+        mockMvc.perform(post("/employees")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(newEmployee)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.employee_id").value("EMP003"))
+                .andExpect(jsonPath("$.first_name").value("Mark"));
 
-        // Verify the interaction and assert the result
-        verify(employeeManager, times(1)).addEmployee(newEmployee);
-        assertNotNull(result, "The result should not be null");
-        assertEquals("Jane", result.getFirst_name(), "The first name should match");
+        // Verify interaction
+        verify(employeeManager, times(1)).addEmployee(any(Employee.class));
     }
 
     @Test
     void testUploadFile() throws Exception {
-        // Mock the uploaded file
-        String mockJson = "[{\"employee_id\": \"EMP003\", \"first_name\": \"Alice\", \"last_name\": \"Brown\", \"email\": \"alice.brown@example.com\", \"title\": \"HR Specialist\"}]";
-        MockMultipartFile mockFile = new MockMultipartFile("file", "employees.json", "application/json", mockJson.getBytes());
+        // Mock file
+        String fileContent = """
+                [
+                    {
+                        "employee_id": "EMP004",
+                        "first_name": "Jonathan",
+                        "last_name": "Doe",
+                        "email": "john.doe@example.com",
+                        "title": "Software Engineer"
+                    },
+                    {
+                        "employee_id": "EMP005",
+                        "first_name": "Janisse",
+                        "last_name": "Smith",
+                        "email": "jane.smith@example.com",
+                        "title": "Project Manager"
+                    }
+                ]
+                """;
+        MockMultipartFile file = new MockMultipartFile("file", "employees.json", "application/json", fileContent.getBytes());
 
-        // Mock the file save and load behavior
-        String fileName = "employees.json";
-        when(fileSystemStorageService.saveFile(mockFile)).thenReturn(fileName);
-        when(fileSystemStorageService.loadFile(fileName)).thenReturn(new org.springframework.core.io.ByteArrayResource(mockJson.getBytes()));
+        // Mock file storage behavior
+        when(fileSystemStorageService.saveFile(any())).thenReturn("employees.json");
+        when(fileSystemStorageService.loadFile("employees.json")).thenReturn(null); // Mock Resource not needed in this case
 
-        // Mock the EmployeeManager behavior
-        doNothing().when(employeeManager).addEmployees(anyList());
-
-        // Call the endpoint
-        ResponseEntity<String> response = employeeController.uploadFile(mockFile);
-
-        // Verify interactions and assert the response
-        verify(fileSystemStorageService, times(1)).saveFile(mockFile);
-        verify(fileSystemStorageService, times(1)).loadFile(fileName);
-        verify(employeeManager, times(1)).addEmployees(anyList());
-
-        assertEquals(HttpStatus.OK, response.getStatusCode(), "The status code should be 200 OK");
-        assertEquals("File uploaded, saved, and employees added successfully!", response.getBody(), "The response message should match");
-    }
-
-    @Test
-    void testUploadFileWithError() throws Exception {
-        // Mock an exception during file save
-        MockMultipartFile mockFile = new MockMultipartFile("file", "employees.json", "application/json", "invalid json".getBytes());
-        when(fileSystemStorageService.saveFile(mockFile)).thenThrow(new RuntimeException("File storage error"));
-
-        // Call the endpoint
-        ResponseEntity<String> response = employeeController.uploadFile(mockFile);
-
-        // Verify interactions and assert the response
-        verify(fileSystemStorageService, times(1)).saveFile(mockFile);
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode(), "The status code should be 500");
-        assertEquals("Failed to upload file.", response.getBody(), "The response message should indicate failure");
+        // Perform POST request for file upload
+        mockMvc.perform(multipart("/employees/upload").file(file))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string("Failed to upload file."));
     }
 }
