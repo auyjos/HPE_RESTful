@@ -1,4 +1,4 @@
-package com.example.restservice;
+package com.hpe.restservice;
 
 import org.junit.jupiter.api.Test;
 
